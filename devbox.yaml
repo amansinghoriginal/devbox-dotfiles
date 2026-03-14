@@ -17,11 +17,13 @@ userTasks:
     parameters:
       package: Microsoft.PowerToys
 
-  # --- Accept WinGet source agreements upfront ---
+  # --- Accept WinGet source agreements, then install Docker (needs admin) ---
   - name: ~/powershell
-    description: "Accept WinGet source agreements"
+    description: "Accept WinGet source agreements and install Docker Desktop"
     parameters:
-      command: "winget source update --accept-source-agreements"
+      command: |
+        winget source update --accept-source-agreements
+        winget install Docker.DockerDesktop --accept-package-agreements --accept-source-agreements --silent
 
   # --- Clone dotfiles repo ---
   - name: ~/git-clone

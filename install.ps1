@@ -87,8 +87,7 @@ RUNDLL32.EXE USER32.DLL,UpdatePerUserSystemParameters
 # --- .wslconfig (WSL resource limits) ---
 Copy-Item "$dotfiles\.wslconfig" "$env:USERPROFILE\.wslconfig" -Force
 
-# --- Docker Desktop: install + apply settings ---
-winget install Docker.DockerDesktop --accept-package-agreements --accept-source-agreements --silent
+# --- Docker Desktop: apply settings (install handled by devbox.yaml) ---
 $dockerDir = "$env:APPDATA\Docker"
 New-Item -ItemType Directory -Path $dockerDir -Force
 Copy-Item "$dotfiles\docker-settings.json" "$dockerDir\settings.json" -Force
