@@ -1,0 +1,32 @@
+tasks:
+  # --- Windows Apps via WinGet ---
+  - name: winget
+    parameters:
+      package: Microsoft.VisualStudioCode
+
+  - name: winget
+    parameters:
+      package: Microsoft.WindowsTerminal
+
+  - name: winget
+    parameters:
+      package: Docker.DockerDesktop
+
+  # --- Clone dotfiles repo ---
+  - name: git-clone
+    parameters:
+      repositoryUrl: https://github.com/amansinghoriginal/devbox-dotfiles
+      directory: C:\devbox-dotfiles
+
+  # --- Windows-side configuration ---
+  - name: powershell
+    parameters:
+      command: C:\devbox-dotfiles\install.ps1
+
+  # --- WSL + Ubuntu setup ---
+  - name: powershell
+    parameters:
+      command: |
+        wsl --install --distribution Ubuntu --no-launch
+        wsl --update
+        wsl -d Ubuntu -- bash /mnt/c/devbox-dotfiles/wsl-setup.sh
