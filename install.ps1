@@ -66,20 +66,19 @@ Stop-Process -Name WindowsTerminal -Force -ErrorAction SilentlyContinue
 
 $wtSettingsPath = "$env:LOCALAPPDATA\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json"
 if (Test-Path $wtSettingsPath) {
-    $wtSettings = Get-Content $wtSettingsPath -Raw | ConvertFrom-Json
-    # Find Ubuntu profile GUID
-    $ubuntuProfile = $wtSettings.profiles.list | Where-Object { $_.name -match "Ubuntu" }
-    if ($ubuntuProfile) {
-        $wtSettings.defaultProfile = $ubuntuProfile.guid
-        $wtSettings | ConvertTo-Json -Depth 10 | Set-Content $wtSettingsPath -Encoding UTF8
+    $content = Get-Content $wtSettingsPath -Raw
+    # Find Ubuntu profile GUID via regex
+    if ($content -match '"name"\s*:\s*"Ubuntu"' -and $content -match '"guid"\s*:\s*"(\{[^}]+\})"') {
+        $ubuntuGuid = $Matches[1]
+        # Replace defaultProfile value with Ubuntu GUID using string replacement
+        $content = $content -replace '"defaultProfile"\s*:\s*"[^"]*"', "`"defaultProfile`": `"$ubuntuGuid`""
+        Set-Content $wtSettingsPath -Value $content -Encoding UTF8 -NoNewline
     }
 } else {
-    # Fallback — create settings with Ubuntu default GUID
+    # Terminal not launched yet — create minimal settings pointing to Ubuntu
     $wtSettingsDir = Split-Path $wtSettingsPath
     New-Item -ItemType Directory -Path $wtSettingsDir -Force
-    @{
-        defaultProfile = "{2c4de342-38b7-51cf-b940-2309a097f518}"
-    } | ConvertTo-Json | Set-Content $wtSettingsPath -Encoding UTF8
+    Set-Content $wtSettingsPath -Value '{ "defaultProfile": "{2c4de342-38b7-51cf-b940-2309a097f518}" }' -Encoding UTF8
 }
 
 # --- Solid desktop background (no wallpaper) ---
