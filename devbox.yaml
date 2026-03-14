@@ -42,4 +42,11 @@ userTasks:
       command: |
         wsl --install --distribution Ubuntu --no-launch
         wsl --update
+        # Create default user with passwordless sudo (no hardcoded password)
+        wsl -d Ubuntu -- bash -c "
+          sudo useradd -m -s /bin/zsh aman
+          echo 'aman ALL=(ALL) NOPASSWD:ALL' | sudo tee /etc/sudoers.d/aman
+          echo -e '[user]\ndefault=aman' | sudo tee /etc/wsl.conf
+        "
+        wsl --terminate Ubuntu
         wsl -d Ubuntu -- bash /mnt/c/devbox-dotfiles/wsl-setup.sh

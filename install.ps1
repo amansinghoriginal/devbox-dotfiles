@@ -54,6 +54,25 @@ reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Explorer" /v LockedStartLayout
 Stop-Process -Name explorer -Force
 Start-Process explorer
 
+# --- Windows Terminal: set Ubuntu as default profile ---
+$wtSettingsPath = "$env:LOCALAPPDATA\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json"
+if (Test-Path $wtSettingsPath) {
+    $wtSettings = Get-Content $wtSettingsPath -Raw | ConvertFrom-Json
+    # Find Ubuntu profile GUID
+    $ubuntuProfile = $wtSettings.profiles.list | Where-Object { $_.name -match "Ubuntu" }
+    if ($ubuntuProfile) {
+        $wtSettings.defaultProfile = $ubuntuProfile.guid
+        $wtSettings | ConvertTo-Json -Depth 10 | Set-Content $wtSettingsPath -Encoding UTF8
+    }
+} else {
+    # Terminal not launched yet — create a minimal settings file
+    $wtSettingsDir = Split-Path $wtSettingsPath
+    New-Item -ItemType Directory -Path $wtSettingsDir -Force
+    @{
+        defaultProfile = "{2c4de342-38b7-51cf-b940-2309a097f518}"  # Ubuntu default GUID
+    } | ConvertTo-Json | Set-Content $wtSettingsPath -Encoding UTF8
+}
+
 # --- Solid desktop background (no wallpaper) ---
 reg add "HKCU\Control Panel\Desktop" /v WallPaper /t REG_SZ /d " " /f
 RUNDLL32.EXE USER32.DLL,UpdatePerUserSystemParameters
