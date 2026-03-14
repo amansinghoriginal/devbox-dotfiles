@@ -74,8 +74,10 @@ $bloatware = @(
     @("Microsoft.BingWeather", "Weather")
 )
 foreach ($app in $bloatware) {
-    Test-Check "$($app[1]) removed" {
-        $match = winget list --id $args[0] 2>$null | Select-String $args[0]
+    $appId = $app[0]
+    $appName = $app[1]
+    Test-Check "$appName removed" {
+        $match = winget list --id $appId 2>$null | Select-String $appId
         -not $match
     }.GetNewClosure()
 }
