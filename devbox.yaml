@@ -1,34 +1,43 @@
-tasks:
+$schema: "1.0"
+name: "devbox-dotfiles"
+userTasks:
   # --- Windows Apps via WinGet ---
-  - name: winget
+  - name: ~/winget
+    description: "Install VS Code"
     parameters:
       package: Microsoft.VisualStudioCode
 
-  - name: winget
+  - name: ~/winget
+    description: "Install Windows Terminal"
     parameters:
       package: Microsoft.WindowsTerminal
 
-  - name: winget
+  - name: ~/winget
+    description: "Install Docker Desktop"
     parameters:
       package: Docker.DockerDesktop
 
-  - name: winget
+  - name: ~/winget
+    description: "Install PowerToys"
     parameters:
       package: Microsoft.PowerToys
 
   # --- Clone dotfiles repo ---
-  - name: git-clone
+  - name: ~/git-clone
+    description: "Clone dotfiles repo"
     parameters:
       repositoryUrl: https://github.com/amansinghoriginal/devbox-dotfiles
       directory: C:\devbox-dotfiles
 
   # --- Windows-side configuration ---
-  - name: powershell
+  - name: ~/powershell
+    description: "Run Windows bootstrap script"
     parameters:
       command: C:\devbox-dotfiles\install.ps1
 
   # --- WSL + Ubuntu setup ---
-  - name: powershell
+  - name: ~/powershell
+    description: "Install WSL Ubuntu and run setup"
     parameters:
       command: |
         wsl --install --distribution Ubuntu --no-launch
