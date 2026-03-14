@@ -54,7 +54,11 @@ reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Explorer" /v LockedStartLayout
 Stop-Process -Name explorer -Force
 Start-Process explorer
 
-# --- Windows Terminal: set Ubuntu as default profile ---
+# --- Windows Terminal: launch once to generate settings, then configure ---
+Start-Process wt.exe -ArgumentList "--help" -WindowStyle Hidden -ErrorAction SilentlyContinue
+Start-Sleep -Seconds 5
+Stop-Process -Name WindowsTerminal -Force -ErrorAction SilentlyContinue
+
 $wtSettingsPath = "$env:LOCALAPPDATA\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json"
 if (Test-Path $wtSettingsPath) {
     $wtSettings = Get-Content $wtSettingsPath -Raw | ConvertFrom-Json
@@ -65,11 +69,11 @@ if (Test-Path $wtSettingsPath) {
         $wtSettings | ConvertTo-Json -Depth 10 | Set-Content $wtSettingsPath -Encoding UTF8
     }
 } else {
-    # Terminal not launched yet — create a minimal settings file
+    # Fallback — create settings with Ubuntu default GUID
     $wtSettingsDir = Split-Path $wtSettingsPath
     New-Item -ItemType Directory -Path $wtSettingsDir -Force
     @{
-        defaultProfile = "{2c4de342-38b7-51cf-b940-2309a097f518}"  # Ubuntu default GUID
+        defaultProfile = "{2c4de342-38b7-51cf-b940-2309a097f518}"
     } | ConvertTo-Json | Set-Content $wtSettingsPath -Encoding UTF8
 }
 
