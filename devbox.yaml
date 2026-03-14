@@ -13,14 +13,15 @@ userTasks:
       package: Microsoft.WindowsTerminal
 
   - name: ~/winget
-    description: "Install Docker Desktop"
-    parameters:
-      package: Docker.DockerDesktop
-
-  - name: ~/winget
     description: "Install PowerToys"
     parameters:
       package: Microsoft.PowerToys
+
+  # --- Accept WinGet source agreements upfront ---
+  - name: ~/powershell
+    description: "Accept WinGet source agreements"
+    parameters:
+      command: "winget source update --accept-source-agreements"
 
   # --- Clone dotfiles repo ---
   - name: ~/git-clone
