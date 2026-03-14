@@ -12,6 +12,10 @@ tasks:
     parameters:
       package: Docker.DockerDesktop
 
+  - name: winget
+    parameters:
+      package: Microsoft.PowerToys
+
   # --- Clone dotfiles repo ---
   - name: git-clone
     parameters:

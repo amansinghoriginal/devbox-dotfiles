@@ -9,9 +9,33 @@ $dotfiles = "C:\devbox-dotfiles"
 reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v AppsUseLightTheme /t REG_DWORD /d 0 /f
 reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v SystemUsesLightTheme /t REG_DWORD /d 0 /f
 
+# --- Show file extensions ---
+reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v HideFileExt /t REG_DWORD /d 0 /f
+
+# --- Hide search box from taskbar ---
+reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Search" /v SearchboxTaskbarMode /t REG_DWORD /d 0 /f
+
+# --- Hide widgets button from taskbar ---
+reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v TaskbarDa /t REG_DWORD /d 0 /f
+
 # --- Edge: skip first-run experience ---
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v HideFirstRunExperience /t REG_DWORD /d 1 /f
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v AutoImportAtFirstRun /t REG_DWORD /d 4 /f
+
+# --- Remove Windows bloatware ---
+$bloatware = @(
+    "Microsoft.YourPhone"
+    "microsoft.windowscommunicationsapps"
+    "Clipchamp.Clipchamp"
+    "Microsoft.Getstarted"
+    "Microsoft.People"
+    "Microsoft.WindowsCamera"
+    "Microsoft.WindowsMaps"
+    "Microsoft.BingWeather"
+)
+foreach ($app in $bloatware) {
+    winget uninstall $app --accept-source-agreements --silent 2>$null
+}
 
 # --- Windows Terminal as default terminal ---
 reg add "HKCU\Console\%%Startup" /v DelegationConsole /t REG_SZ /d "{2EACA947-7F5F-4CFA-BA87-8F7FBEEFBE69}" /f
@@ -30,6 +54,10 @@ reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Explorer" /v LockedStartLayout
 Stop-Process -Name explorer -Force
 Start-Process explorer
 
+# --- Solid desktop background (no wallpaper) ---
+reg add "HKCU\Control Panel\Desktop" /v WallPaper /t REG_SZ /d " " /f
+RUNDLL32.EXE USER32.DLL,UpdatePerUserSystemParameters
+
 # --- .wslconfig (WSL resource limits) ---
 Copy-Item "$dotfiles\.wslconfig" "$env:USERPROFILE\.wslconfig" -Force
 
@@ -37,5 +65,9 @@ Copy-Item "$dotfiles\.wslconfig" "$env:USERPROFILE\.wslconfig" -Force
 $dockerDir = "$env:APPDATA\Docker"
 New-Item -ItemType Directory -Path $dockerDir -Force
 Copy-Item "$dotfiles\docker-settings.json" "$dockerDir\settings.json" -Force
+
+# --- Clean up desktop shortcuts left by installers ---
+Remove-Item "$env:USERPROFILE\Desktop\*.lnk" -Force -ErrorAction SilentlyContinue
+Remove-Item "$env:PUBLIC\Desktop\*.lnk" -Force -ErrorAction SilentlyContinue
 
 Write-Host "Windows bootstrap complete."

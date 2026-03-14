@@ -1,8 +1,11 @@
 {
   "startAtLogin": true,
+  "openAtLogin": true,
   "closeToNotificationArea": false,
   "autoPause": false,
   "useResourceSaver": false,
+  "hibernateOnStop": false,
+  "autoStart": true,
   "wslEngineEnabled": true,
   "integratedWslDistros": ["Ubuntu"]
 }

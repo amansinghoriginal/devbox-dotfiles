@@ -11,7 +11,12 @@ sudo apt-get update && sudo apt-get install -y \
     build-essential pkg-config libssl-dev \
     zsh \
     jq ripgrep fd-find bat htop tmux \
-    fontconfig
+    fontconfig \
+    shellcheck \
+    postgresql-client \
+    mysql-client \
+    aspell aspell-en \
+    pipx
 
 # Ubuntu uses different binary names for fd and bat
 mkdir -p ~/.local/bin
@@ -21,18 +26,14 @@ ln -sf "$(which batcat)" ~/.local/bin/bat 2>/dev/null || true
 echo "=== Installing Zsh + Oh-My-Zsh ==="
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 
-# Powerlevel10k theme
-git clone --depth=1 https://github.com/romkatv/powerlevel10k.git \
-    "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k"
-
 # Plugins
 git clone https://github.com/zsh-users/zsh-autosuggestions \
     "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions"
 git clone https://github.com/zsh-users/zsh-syntax-highlighting \
     "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting"
 
-# Configure .zshrc
-sed -i 's|^ZSH_THEME=.*|ZSH_THEME="powerlevel10k/powerlevel10k"|' ~/.zshrc
+# Configure .zshrc — use robbyrussell theme (matches Mac setup)
+sed -i 's|^ZSH_THEME=.*|ZSH_THEME="robbyrussell"|' ~/.zshrc
 sed -i 's|^plugins=(.*)|plugins=(git docker rust python dotnet fzf zsh-autosuggestions zsh-syntax-highlighting)|' ~/.zshrc
 
 # Ensure ~/.local/bin is in PATH
@@ -52,6 +53,12 @@ nvm install --lts
 echo "=== Installing Claude Code ==="
 npm install -g @anthropic-ai/claude-code
 
+echo "=== Installing Dev Containers CLI ==="
+npm install -g @devcontainers/cli
+
+echo "=== Installing pyspelling ==="
+pipx install pyspelling
+
 echo "=== Installing GitHub CLI + Copilot extension ==="
 (type -p wget >/dev/null || sudo apt-get install -y wget) \
     && sudo mkdir -p -m 755 /etc/apt/keyrings \
@@ -64,6 +71,9 @@ echo "=== Installing GitHub CLI + Copilot extension ==="
     && sudo apt-get update \
     && sudo apt-get install -y gh
 gh extension install github/gh-copilot
+
+echo "=== Installing Go ==="
+sudo apt-get install -y golang-go
 
 echo "=== Installing Rust (via rustup) ==="
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
@@ -86,6 +96,19 @@ export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"
 pyenv install 3.12
 pyenv global 3.12
+
+echo "=== Configuring WSL-Windows integration ==="
+# Open URLs from WSL in Windows browser
+echo 'export BROWSER="explorer.exe"' >> ~/.zshrc
+
+# Reuse Windows GitHub auth token in WSL (no need to gh auth login twice)
+echo 'export GITHUB_TOKEN=$(gh.exe auth token 2>/dev/null)' >> ~/.zshrc
+
+echo "=== Setting up git config ==="
+git config --global user.name "Aman Singh"
+git config --global user.email "aman.singh.original@gmail.com"
+git config --global credential.helper "/mnt/c/Program\ Files/Git/mingw64/bin/git-credential-manager.exe"
+git config --global credential.https://dev.azure.com.useHttpPath true
 
 echo "=== Setting zsh as default shell ==="
 sudo chsh -s "$(which zsh)" "$USER"
