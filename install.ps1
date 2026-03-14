@@ -3,7 +3,8 @@
 # Run by devbox.yaml after git-clone pulls this repo to C:\devbox-dotfiles
 ###############################################################################
 
-$dotfiles = "C:\devbox-dotfiles"
+# Auto-detect script location so paths work regardless of clone depth
+$dotfiles = $PSScriptRoot
 
 # --- System-wide Dark Mode ---
 reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v AppsUseLightTheme /t REG_DWORD /d 0 /f
@@ -37,7 +38,8 @@ $bloatware = @(
     "Microsoft.BingWeather"
 )
 foreach ($app in $bloatware) {
-    winget uninstall $app --accept-source-agreements --silent 2>$null
+    winget uninstall $app --accept-source-agreements --silent 2>$null | Out-Null
+    # Silently skip apps that aren't installed
 }
 
 # --- Windows Terminal as default terminal ---
