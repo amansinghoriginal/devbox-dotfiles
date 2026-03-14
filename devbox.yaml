@@ -30,7 +30,7 @@ userTasks:
     description: "Clone dotfiles repo"
     parameters:
       repositoryUrl: https://github.com/amansinghoriginal/devbox-dotfiles
-      directory: C:\devbox-dotfiles
+      directory: C:\
 
   # --- Windows-side configuration ---
   - name: ~/powershell
